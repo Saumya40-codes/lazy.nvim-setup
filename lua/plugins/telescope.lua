@@ -15,5 +15,6 @@ return {
     })
 
     vim.keymap.set("n", "<leader>fw", "<cmd>Telescope live_grep<CR>", { desc = "Live Grep" })
+    vim.keymap.set("n", "<leader>fv", "<cmd>Telescope find_files<CR>", { desc = "Find Files" })
   end,
 }
