@@ -49,6 +49,10 @@ return {
           gitsigns = true,
           nvimtree = true,
         },
+        float = {
+          transparent = true,
+          solid = true,
+        },
       })
       vim.cmd.colorscheme("catppuccin")
     end,
