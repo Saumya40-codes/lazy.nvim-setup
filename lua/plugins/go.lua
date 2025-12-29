@@ -24,16 +24,5 @@ return {
     vim.keymap.set("n", "<leader>gi", "<cmd>GoImports<CR>", { silent = true, desc = "Go Imports" })
     vim.keymap.set("n", "<leader>gf", "<cmd>GoFormat<CR>", { silent = true, desc = "Go Format" })
     vim.keymap.set("n", "<leader>gr", "<cmd>GoRun<CR>", { silent = true, desc = "Go Run" })
-
-    -- hook gopls settings via nvim-lspconfig
-    local lspconfig = require("lspconfig")
-    lspconfig.gopls.setup({
-      settings = {
-        gopls = {
-          analyses = { unusedparams = true },
-          staticcheck = true,
-        },
-      },
-    })
   end,
 }

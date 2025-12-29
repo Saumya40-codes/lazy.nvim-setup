@@ -51,7 +51,7 @@ return {
         },
         float = {
           transparent = true,
-          solid = true,
+          solid = false,
         },
       })
       vim.cmd.colorscheme("catppuccin")
