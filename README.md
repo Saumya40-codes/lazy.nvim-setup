@@ -2,6 +2,22 @@
 
 Quick start
 - Install Neovim (0.10+ recommended).
+    - For macOS:
+        ```bash
+        brew install neovim
+        ```
+    - For Linux:
+        ```bash
+        curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
+        sudo rm -rf /opt/nvim-linux-x86_64
+        sudo tar -C /opt -xzf nvim-linux-x86_64.tar.gz
+        ```
+
+        Then add this to your shell config (~/.bashrc, ~/.zshrc, …):
+        ```bash
+        export PATH="$PATH:/opt/nvim-linux-x86_64/bin"
+        ```
+
 - Open Neovim; this config uses lazy.nvim to manage plugins and will prompt to install plugins if missing.
 
 Language specifics (optional)
