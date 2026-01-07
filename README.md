@@ -18,6 +18,8 @@ Quick start
         export PATH="$PATH:/opt/nvim-linux-x86_64/bin"
         ```
 
+- Install [Nerdfonts](https://www.nerdfonts.com/)
+
 - Open Neovim; this config uses lazy.nvim to manage plugins and will prompt to install plugins if missing.
 
 Language specifics (optional)
