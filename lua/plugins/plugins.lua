@@ -1,94 +1,93 @@
+-- Custom plugins & LazyVim overrides
 return {
-  { "wakatime/vim-wakatime", lazy = false },
-  -- {  uncomment if copilot is needed :)
-  --   "zbirenbaum/copilot.lua",
-  --   event = "InsertEnter",
-  --   config = function()
-  --     require("copilot").setup({
-  --       suggestion = {
-  --         enabled = true,
-  --         auto_trigger = true,
-  --         debounce = 75,
-  --         keymap = {
-  --           accept = "<Tab>",
-  --           accept_word = false,
-  --           accept_line = false,
-  --           next = "<M-]>",
-  --           prev = "<M-[>",
-  --           dismiss = "<C-]>",
-  --         },
-  --         filter_disallow = {
-  --           -- Disable suggestions in comments
-  --           [1] = function(suggestion)
-  --             local context = suggestion.context
-  --             return context.filetype == "comment"
-  --           end,
-  --         },
-  --       },
-  --       panel = { enabled = false },
-  --       filetypes = {
-  --         ["*"] = true,
-  --       },
-  --     })
-  --   end,
-  -- },
+  -- Colorscheme: Catppuccin Mocha (drives LazyVim + lualine)
   {
     "catppuccin/nvim",
     name = "catppuccin",
+    lazy = false,
     priority = 1000,
-    config = function()
-      require("catppuccin").setup({
-        flavour = "mocha",
-        integrations = {
-          treesitter = true,
-          native_lsp = {
-            enabled = true,
-          },
-          telescope = true,
-          cmp = true,
-          gitsigns = true,
-          nvimtree = true,
-        },
-        float = {
-          transparent = true,
-          solid = false,
-        },
-      })
-      vim.cmd.colorscheme("catppuccin")
-    end,
+    opts = {
+      flavour = "mocha",
+      transparent_background = false,
+      integrations = {
+        treesitter = true,
+        native_lsp = { enabled = true },
+        telescope = true,
+        cmp = true,
+        blink_cmp = true,
+        gitsigns = true,
+        mason = true,
+        which_key = true,
+        dap = true,
+        dap_ui = true,
+        snacks = true,
+        flash = true,
+        neotree = true,
+      },
+    },
   },
   {
-    "nvim-lualine/lualine.nvim",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
+    "LazyVim/LazyVim",
+    opts = {
+      colorscheme = "catppuccin",
+    },
+  },
+
+  -- Statusline: LazyVim defaults (theme = "auto"). Do not set theme = "catppuccin"
+  -- (not a valid lualine theme name; triggers :LualineNotices).
+
+  -- WakaTime coding stats
+  { "wakatime/vim-wakatime", lazy = false },
+
+  -- Floating / split terminal
+  -- Keys avoid <leader>tt (LazyVim lang.java uses that for "Run All Test")
+  {
+    "akinsho/toggleterm.nvim",
+    version = "*",
+    cmd = { "ToggleTerm", "TermExec" },
+    keys = {
+      { "<leader>th", desc = "Terminal (horizontal)" },
+      { "<leader>tv", desc = "Terminal (vertical)" },
+      { "<leader>tf", desc = "Terminal (float)" },
+    },
+    opts = {
+      open_mapping = [[<c-\>]],
+      direction = "horizontal",
+      shade_terminals = true,
+      start_in_insert = true,
+    },
+  },
+
+  -- Do NOT override nvim-dap config: LazyVim dap.core owns setup (mason-dap, signs, UI).
+  -- Only add the Go adapter + telescope-dap extension.
+  {
+    "leoluz/nvim-dap-go",
+    opts = {},
+  },
+  {
+    "nvim-telescope/telescope-dap.nvim",
+    dependencies = { "nvim-telescope/telescope.nvim", "mfussenegger/nvim-dap" },
     config = function()
-      require("lualine").setup({
-        options = {
-          icons_enabled = true,
-          theme = "catppuccin",
-        },
-      })
+      pcall(require("telescope").load_extension, "dap")
     end,
   },
 
-  -- Icons
-  { "nvim-tree/nvim-web-devicons", opts = {} },
-  {
-    "numToStr/Comment.nvim",
-    config = function()
-      require("Comment").setup()
-    end,
-  },
-  {
-    "mfussenegger/nvim-dap",
-    dependencies = {
-      "rcarriga/nvim-dap-ui",
-      "leoluz/nvim-dap-go",
-      "nvim-telescope/telescope-dap.nvim",
-      "nvim-neotest/nvim-nio",
-    },
-    config = function()
-      require("dapui").setup()
-      require("dap-go").setup()
-    end,
-  },
+  -- Optional Copilot (uncomment when needed)
+  -- {
+  --   "zbirenbaum/copilot.lua",
+  --   event = "InsertEnter",
+  --   opts = {
+  --     suggestion = {
+  --       enabled = true,
+  --       auto_trigger = true,
+  --       keymap = {
+  --         accept = "<Tab>",
+  --         next = "<M-]>",
+  --         prev = "<M-[>",
+  --         dismiss = "<C-]>",
+  --       },
+  --     },
+  --     panel = { enabled = false },
+  --   },
+  -- },
 }

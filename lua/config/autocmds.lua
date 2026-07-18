@@ -1,0 +1,5 @@
+-- Autocmds are automatically loaded on the VeryLazy event
+-- Defaults already cover yank highlight, close-with-q, and auto-create parent dirs:
+-- https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua
+--
+-- Add only project-specific autocmds here.

@@ -1,20 +1,48 @@
+-- Prefer fd/fdfind when available; otherwise leave Telescope/LazyVim defaults.
+local function find_command()
+  if vim.fn.executable("fd") == 1 then
+    return { "fd", "--type", "f", "--hidden", "--follow", "--exclude", ".git" }
+  end
+  if vim.fn.executable("fdfind") == 1 then
+    return { "fdfind", "--type", "f", "--hidden", "--follow", "--exclude", ".git" }
+  end
+  return nil
+end
+
+local find_files = {
+  hidden = true,
+}
+local cmd = find_command()
+if cmd then
+  find_files.find_command = cmd
+end
+
 return {
-  "nvim-telescope/telescope.nvim",
-  tag = "0.1.8",
-  dependencies = { "nvim-lua/plenary.nvim" },
-  config = function()
-    require("telescope").setup({
+  {
+    "nvim-telescope/telescope.nvim",
+    opts = {
       defaults = {
+        prompt_prefix = "   ",
+        selection_caret = " ❯ ",
+        path_display = { "smart" },
         file_ignore_patterns = {
           "node_modules",
-          "go.sum",
-          "%.lock", -- ignores yarn.lock, package-lock.json etc.
-          "%.min%.js", -- ignores minified JS files
+          "%.git/",
+          "go%.sum",
+          "%.lock",
+          "%.min%.js",
+          "target/",
+          "dist/",
+          "build/",
+          "%.class",
+        },
+        layout_config = {
+          horizontal = { preview_width = 0.55 },
         },
       },
-    })
-
-    vim.keymap.set("n", "<leader>fw", "<cmd>Telescope live_grep<CR>", { desc = "Live Grep" })
-    vim.keymap.set("n", "<leader>fv", "<cmd>Telescope find_files<CR>", { desc = "Find Files" })
-  end,
+      pickers = {
+        find_files = find_files,
+      },
+    },
+  },
 }

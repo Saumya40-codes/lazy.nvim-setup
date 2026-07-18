@@ -1,49 +1,45 @@
-# Neovim config (lazy.nvim)
+# Neovim config (LazyVim)
 
-Quick start
-- Install Neovim (0.10+ recommended).
-    - For macOS:
-        ```bash
-        brew install neovim
-        ```
-    - For Linux:
-        ```bash
-        curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
-        sudo rm -rf /opt/nvim-linux-x86_64
-        sudo tar -C /opt -xzf nvim-linux-x86_64.tar.gz
-        ```
+Stack: **Neovim 0.11+**, **LazyVim**, **lazy.nvim**, **Catppuccin Mocha**.
 
-        Then add this to your shell config (~/.bashrc, ~/.zshrc, …):
-        ```bash
-        export PATH="$PATH:/opt/nvim-linux-x86_64/bin"
-        ```
+## Layout
 
-- Install [Nerdfonts](https://www.nerdfonts.com/)
+| Path | Purpose |
+|------|---------|
+| `init.lua` | Bootstraps lazy |
+| `lua/config/options.lua` | Editor options |
+| `lua/config/keymaps.lua` | Extra keymaps |
+| `lua/config/autocmds.lua` | Autocommands |
+| `lua/config/lazy.lua` | Plugin manager setup |
+| `lua/plugins/*` | Custom plugins / overrides |
+| `lazyvim.json` | Enabled LazyVim extras |
 
-- Open Neovim; this config uses lazy.nvim to manage plugins and will prompt to install plugins if missing.
+## Languages
 
-Language specifics (optional)
-- Install a Java JDK (11+): ensure `java -version` works.
-- Install the Java language server with Mason inside Neovim: `:Mason` then `:MasonInstall jdtls` (or install jdtls manually and put a launcher on PATH).
-- Applies same for go and install gopls and also gofumpt via `:MasonInstall` have it on PATH as well.
+- **Go**: LazyVim `lang.go` (gopls via Mason) + `ray-x/go.nvim` helpers (`<leader>go*`)
+- **Java**: LazyVim `lang.java` extra (jdtls via Mason) + `<leader>rj` scratch run
+- **Others**: docker, json, yaml, python, rust, toml, markdown, git, dap extras
 
-Manage plugins
-- Plugin specs live under `lua/plugins/` and configuration under `lua/config/`.
-- After editing plugins, run `:Lazy sync` (or `:Lazy` UI) to apply changes.
+Open `:Mason` and install recommended tools (gopls, gofumpt, jdtls, …).
 
-Edit configuration
-- main entry: `init.lua` (loads `lua/config/lazy.lua`).
-- Common config files: `lua/config/*.lua`.
+## Useful keys
 
-Formatting and tooling
-- Stylua config: `stylua.toml` (this repo uses 2-space indentation).
-- Neodev is configured via `.neoconf.json` for better Lua LSP support.
+| Key | Action |
+|-----|--------|
+| `<leader>fw` | Live grep |
+| `<leader>fv` | Find files |
+| `<leader>db` | Toggle breakpoint (LazyVim) |
+| `<leader>du` | DAP UI (LazyVim) |
+| `<F5>` / `<F10>`-`<F12>` | DAP continue / step |
+| `<leader>dbg` | Debug Go test |
+| `<leader>got` / `gof` / `gor` | Go test / format / run |
+| `<leader>th` / `tv` / `tf` | ToggleTerm H/V/float |
+| `<C-\>` | ToggleTerm default map |
+| `<leader>rj` | Java scratch compile+run |
 
-Verify
-- Check installed tools: `:Mason` UI.
-- LSP status: `:LspInfo`.
-- Plugin manager: `:Lazy`.
+## Sync
 
-Troubleshooting
-- If LSP/completion doesn't work for Java: ensure JDK + jdtls are installed and you opened a project with root markers (pom.xml, build.gradle, .git).
-- If a plugin change doesn't load: run `:Lazy sync` and restart Neovim.
+```vim
+:Lazy sync
+:LazyExtras
+```
