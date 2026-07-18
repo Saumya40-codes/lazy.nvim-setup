@@ -1,4 +1,90 @@
 return {
+  -- gopls: drop overlapping analyzers so one finding is not shown 2-3 times.
+  -- LazyVim lang.go enables both analyses.nilness AND staticcheck (SA4031 etc.),
+  -- which report the same nil-check issues. It also wires nvim-lint → golangci-lint,
+  -- which often runs staticcheck again.
+  {
+    "neovim/nvim-lspconfig",
+    opts = {
+      -- Less end-of-line spam; full detail still in float (:leader>cd) and Trouble.
+      diagnostics = {
+        virtual_text = {
+          spacing = 4,
+          source = "if_many",
+          prefix = "●",
+          -- Hints / pure "related info" style noise stay off the line; WARN+ only.
+          severity = { min = vim.diagnostic.severity.WARN },
+          format = function(diagnostic)
+            -- One line only (relatedInformation can make multi-line walls)
+            local msg = diagnostic.message or ""
+            msg = msg:gsub("\n.*", "")
+            if #msg > 120 then
+              msg = msg:sub(1, 117) .. "..."
+            end
+            return msg
+          end,
+        },
+        severity_sort = true,
+        float = {
+          source = true,
+          border = "rounded",
+          header = "",
+          prefix = "",
+        },
+      },
+      servers = {
+        gopls = {
+          settings = {
+            gopls = {
+              -- staticcheck already covers impossible/tautological nil checks (e.g. SA4031)
+              analyses = {
+                nilness = false,
+                unusedparams = true,
+                unusedwrite = true,
+                useany = true,
+                -- often noisy for learning/scratch code:
+                shadow = false,
+              },
+              staticcheck = true,
+              -- fewer floating codelenses / inlay chrome in the gutter area of focus
+              codelenses = {
+                gc_details = false,
+                generate = true,
+                regenerate_cgo = false,
+                run_govulncheck = false,
+                test = true,
+                tidy = true,
+                upgrade_dependency = false,
+                vendor = false,
+              },
+              hints = {
+                assignVariableTypes = false,
+                compositeLiteralFields = true,
+                compositeLiteralTypes = false,
+                constantValues = true,
+                functionTypeParameters = false,
+                parameterNames = true,
+                rangeVariableTypes = false,
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+
+  -- Do not also run golangci-lint via nvim-lint: gopls+staticcheck is enough inline.
+  -- Use `golangci-lint run` in CI/terminal when you want the full suite.
+  {
+    "mfussenegger/nvim-lint",
+    optional = true,
+    opts = function(_, opts)
+      opts.linters_by_ft = opts.linters_by_ft or {}
+      opts.linters_by_ft.go = {} -- empty = no extra linters for Go
+      return opts
+    end,
+  },
+
   {
     "ray-x/go.nvim",
     dependencies = {
@@ -19,15 +105,12 @@ return {
       lsp_gofumpt = true,
       lsp_inlay_hints = { enable = true },
       -- go.nvim master calls vim.lsp.codelens.enable() which does NOT exist on Neovim 0.11
-      -- (only refresh/clear/run/...). That throws on every BufRead/InsertLeave for *.go.
-      -- Disable go.nvim's codelens; we refresh safely ourselves below when on 0.11.
       lsp_codelens = false,
       dap_debug = true,
-      -- LazyVim dap.core owns UI + keymaps; do not let go.nvim install temporary single-key maps
       dap_debug_gui = false,
       dap_debug_keymap = false,
       trouble = true,
-      luasnip = false, -- stack uses blink.cmp, not LuaSnip
+      luasnip = false,
     },
     config = function(_, opts)
       require("go").setup(opts)
@@ -46,7 +129,6 @@ return {
         })
       end
 
-      -- Buffer-local maps under <leader>go* so we never shadow LazyVim git keys
       vim.api.nvim_create_autocmd("FileType", {
         pattern = { "go", "gomod" },
         group = vim.api.nvim_create_augroup("GoNvimMaps", { clear = true }),
