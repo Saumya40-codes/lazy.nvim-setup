@@ -1,21 +1,14 @@
 return {
-  -- gopls: drop overlapping analyzers so one finding is not shown 2-3 times.
-  -- LazyVim lang.go enables both analyses.nilness AND staticcheck (SA4031 etc.),
-  -- which report the same nil-check issues. It also wires nvim-lint → golangci-lint,
-  -- which often runs staticcheck again.
   {
     "neovim/nvim-lspconfig",
     opts = {
-      -- Less end-of-line spam; full detail still in float (:leader>cd) and Trouble.
       diagnostics = {
         virtual_text = {
           spacing = 4,
           source = "if_many",
           prefix = "●",
-          -- Hints / pure "related info" style noise stay off the line; WARN+ only.
           severity = { min = vim.diagnostic.severity.WARN },
           format = function(diagnostic)
-            -- One line only (relatedInformation can make multi-line walls)
             local msg = diagnostic.message or ""
             msg = msg:gsub("\n.*", "")
             if #msg > 120 then
@@ -36,17 +29,14 @@ return {
         gopls = {
           settings = {
             gopls = {
-              -- staticcheck already covers impossible/tautological nil checks (e.g. SA4031)
               analyses = {
                 nilness = false,
                 unusedparams = true,
                 unusedwrite = true,
                 useany = true,
-                -- often noisy for learning/scratch code:
                 shadow = false,
               },
               staticcheck = true,
-              -- fewer floating codelenses / inlay chrome in the gutter area of focus
               codelenses = {
                 gc_details = false,
                 generate = true,
@@ -73,14 +63,12 @@ return {
     },
   },
 
-  -- Do not also run golangci-lint via nvim-lint: gopls+staticcheck is enough inline.
-  -- Use `golangci-lint run` in CI/terminal when you want the full suite.
   {
     "mfussenegger/nvim-lint",
     optional = true,
     opts = function(_, opts)
       opts.linters_by_ft = opts.linters_by_ft or {}
-      opts.linters_by_ft.go = {} -- empty = no extra linters for Go
+      opts.linters_by_ft.go = {}
       return opts
     end,
   },
@@ -100,11 +88,9 @@ return {
       fillstruct = "gopls",
       gofmt = "gofumpt",
       tag_transform = false,
-      -- lang.go extra starts gopls via LazyVim/mason; keep go.nvim LSP off to avoid double gopls
       lsp_cfg = false,
       lsp_gofumpt = true,
       lsp_inlay_hints = { enable = true },
-      -- go.nvim master calls vim.lsp.codelens.enable() which does NOT exist on Neovim 0.11
       lsp_codelens = false,
       dap_debug = true,
       dap_debug_gui = false,
@@ -115,7 +101,6 @@ return {
     config = function(_, opts)
       require("go").setup(opts)
 
-      -- Safe codelens for Neovim 0.11 (go.nvim uses enable() which is 0.12+)
       if vim.lsp.codelens and type(vim.lsp.codelens.refresh) == "function" and type(vim.lsp.codelens.enable) ~= "function" then
         vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "InsertLeave", "BufWritePost" }, {
           group = vim.api.nvim_create_augroup("GoCodeLensNvim011", { clear = true }),
